@@ -13,8 +13,6 @@ class Chronos
 
     public static function setLogger(LoggerInterface $logger) {
         self::$logger = $logger;
-
-        return self::class;
     }
 
     /**
