@@ -11,5 +11,12 @@
             "name": "Abdoulaye Siby",
             "email": "maestro@abdoulaye.com"
         }
-    ]
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Chronos\\": "./src",
+            "Chronos\\Tests\\": "./tests"
+        }
+    }
 }
