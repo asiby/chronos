@@ -1,0 +1,15 @@
+{
+    "name": "asiby/chronos",
+    "description": "A PHP library to start a timer you can use to track how long an operation takes.",
+    "type": "library",
+    "require": {
+        "psr/log": "^1.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abdoulaye Siby",
+            "email": "maestro@abdoulaye.com"
+        }
+    ]
+}
