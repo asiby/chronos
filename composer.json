@@ -12,6 +12,7 @@
             "email": "maestro@abdoulaye.com"
         }
     ],
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Chronos\\": "./src",
