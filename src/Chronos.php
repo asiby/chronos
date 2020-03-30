@@ -1,5 +1,5 @@
 <?php
-namespace ASiby\Chronos;
+namespace ASiby;
 
 use Exception;
 use Psr\Log\LoggerInterface;
