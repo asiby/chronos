@@ -7,12 +7,32 @@ use Psr\Log\LoggerInterface;
 class Chronos
 {
     protected static $timeTrackers = [];
+    protected static $decimalPrecision = 10;
+    protected static $defaultLabel = 'default';
 
     /** @var LoggerInterface */
     protected static $logger = null;
 
+    /** @noinspection PhpUnused */
     public static function setLogger(LoggerInterface $logger) {
         self::$logger = $logger;
+    }
+
+    /**
+     * @return int
+     * @noinspection PhpUnused
+     */
+    public static function getDecimalPrecision(): int
+    {
+        return self::$decimalPrecision;
+    }
+
+    /**
+     * @param int $decimalPrecision
+     * @noinspection PhpUnused*/
+    public static function setDecimalPrecision(int $decimalPrecision): void
+    {
+        self::$decimalPrecision = $decimalPrecision;
     }
 
     /**
@@ -41,41 +61,107 @@ class Chronos
      * Start a new timer.
      *
      * @param string $label
+     * @param bool   $verbose
      *
      * @throws Exception
      */
-    public static function time($label = 'default') {
+    public static function time($label = 'default', $verbose = false) {
+        $label = self::sanitizeLabel($label);
         self::ensureTimerDoesNotExist($label);
 
-        self::$timeTrackers[$label] = microtime(true);
+        $now = microtime(true);
+
+        self::$timeTrackers[$label] = [
+            'startTime' => $now,
+            'lastLogTime' => null,
+            'verbose' => $verbose,
+        ];
+
+        if ($verbose) {
+            self::log("Started a new timer with the label '{$label}'");
+        }
     }
 
     /**
      * Print the current timing information in the log and keep the timer active.
      *
      * @param string $label
+     * @param string $description
+     * @param bool   $showDelta
      *
      * @throws Exception
      */
-    public static function timeLog($label = 'default') {
+    public static function timeLog($label = 'default', $description = null, $showDelta = true) {
+        $label = self::sanitizeLabel($label);
         self::ensureTimerDoesExist($label);
 
-        self::log("{$label}: " . (microtime(true) - self::$timeTrackers[$label]));
+        $now = microtime(true);
+        $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
+        $timeLogDelta = self::format($now - (self::$timeTrackers[$label]['lastLogTime'] ?? 0));
+
+        $message = "{$label}: {$timeLog}";
+
+        if (self::$timeTrackers[$label]['lastLogTime'] ?? false) {
+            if ($showDelta) {
+                $message .= " - Time log delta: {$timeLogDelta}";
+            }
+        }
+
+        if ($description) {
+            $message .= " - {$description}";
+        }
+
+        self::log($message);
+
+        self::$timeTrackers[$label]['lastLogTime'] = $now;
     }
 
     /**
      * Ends a timer and print the timing information in the log
      *
      * @param string $label
+     * @param string $description
      *
      * @throws Exception
      */
-    public static function timeEnd($label = 'default') {
+    public static function timeEnd($label = 'default', $description = '') {
+        $label = self::sanitizeLabel($label);
         self::ensureTimerDoesExist($label);
 
-        self::log("{$label}: " . (microtime(true) - self::$timeTrackers[$label]));
+        $now = microtime(true);
+        $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
+
+        $message = "{$label}: {$timeLog}";
+
+        if ($description) {
+            $message .= " - {$description}";
+        }
+
+        if (self::$timeTrackers[$label]['verbose']) {
+            $message = "{$message} (final)";
+        }
+
+        self::log($message);
+
+        if (self::$timeTrackers[$label]['verbose']) {
+            self::log("Terminated a new timer with the label '{$label}'");
+        }
 
         unset(self::$timeTrackers[$label]);
+    }
+
+    /**
+     * Format the timer times.
+     *
+     * @param      $number
+     * @param int  $decimals
+     *
+     * @param bool $withUnit
+     *
+     * @return string
+     */
+    private static function format($number, $decimals = null, $withUnit = true) {
+        return number_format($number, (int) ($decimals ?? self::$decimalPrecision)) . ($withUnit ? 's' : '');
     }
 
     /**
@@ -89,5 +175,10 @@ class Chronos
         } else {
             error_log($message);
         }
+    }
+
+    private static function sanitizeLabel(string $label = null)
+    {
+        return $label ?? self::$defaultLabel;
     }
 }
