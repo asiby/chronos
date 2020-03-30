@@ -1,5 +1,5 @@
 <?php
-namespace Chronos;
+namespace ASiby\Chronos;
 
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -99,7 +99,13 @@ class Chronos
         $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
         $timeLogDelta = self::format($now - (self::$timeTrackers[$label]['lastLogTime'] ?? 0));
 
-        $message = "{$label}: {$timeLog}";
+        $message = '';
+
+//        if (self::$timeTrackers[$label]['verbose']) {
+//            $message = "Line #" . __LINE__ . " - ";
+//        }
+
+        $message .= "{$label}: {$timeLog}";
 
         if (self::$timeTrackers[$label]['lastLogTime'] ?? false) {
             if ($showDelta) {
@@ -131,7 +137,13 @@ class Chronos
         $now = microtime(true);
         $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
 
-        $message = "{$label}: {$timeLog}";
+        $message = '';
+
+//        if (self::$timeTrackers[$label]['verbose']) {
+//            $message = "Line #" . __LINE__ . " - ";
+//        }
+
+        $message .= "{$label}: {$timeLog}";
 
         if ($description) {
             $message .= " - {$description}";
