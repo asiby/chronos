@@ -190,10 +190,3 @@ Improvements are welcome! Feel free to submit pull requests.
 MIT
 
 Copyright © 2020 - [Abdoulaye Siby](https://abdoulaye.com)
-
-
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
