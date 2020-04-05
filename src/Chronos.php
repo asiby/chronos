@@ -42,7 +42,7 @@ class Chronos
      */
     private static function ensureTimerDoesExist($label) {
         if (!array_key_exists($label, self::$timeTrackers)) {
-            throw new Exception("Timer '{$label}' does not exists");
+            throw new Exception("Timer '{$label}' does not exists", 400);
         }
     }
 
@@ -53,7 +53,7 @@ class Chronos
      */
     private static function ensureTimerDoesNotExist($label) {
         if (array_key_exists($label, self::$timeTrackers)) {
-            throw new Exception("Timer '{$label}' already exists");
+            throw new Exception("Timer '{$label}' already exists", 400);
         }
     }
 
@@ -62,12 +62,17 @@ class Chronos
      *
      * @param string $label
      * @param bool   $verbose
-     *
-     * @throws Exception
      */
     public static function time($label = 'default', $verbose = false) {
         $label = self::sanitizeLabel($label);
-        self::ensureTimerDoesNotExist($label);
+
+        try
+        {
+            self::ensureTimerDoesNotExist($label);
+        } catch (Exception $exception) {
+            self::log("{$exception->getMessage()} (code {$exception->getCode()})");
+            return;
+        }
 
         $now = microtime(true);
 
@@ -88,22 +93,23 @@ class Chronos
      * @param string $label
      * @param string $description
      * @param bool   $showDelta
-     *
-     * @throws Exception
      */
-    public static function timeLog($label = 'default', $description = null, $showDelta = true) {
+    public static function logTime($label = 'default', $description = null, $showDelta = true) {
         $label = self::sanitizeLabel($label);
-        self::ensureTimerDoesExist($label);
+
+        try
+        {
+            self::ensureTimerDoesExist($label);
+        } catch (Exception $exception) {
+            self::log("{$exception->getMessage()} (code {$exception->getCode()})");
+            return;
+        }
 
         $now = microtime(true);
         $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
         $timeLogDelta = self::format($now - (self::$timeTrackers[$label]['lastLogTime'] ?? 0));
 
         $message = '';
-
-//        if (self::$timeTrackers[$label]['verbose']) {
-//            $message = "Line #" . __LINE__ . " - ";
-//        }
 
         $message .= "{$label}: {$timeLog}";
 
@@ -123,16 +129,32 @@ class Chronos
     }
 
     /**
+     * Alias for static::logTime()
+     *
+     * @param string $label
+     * @param null   $description
+     * @param bool   $showDelta
+     */
+    public static function timeLog($label = 'default', $description = null, $showDelta = true) {
+        self::logTime($label, $description, $showDelta);
+    }
+
+    /**
      * Ends a timer and print the timing information in the log
      *
      * @param string $label
      * @param string $description
-     *
-     * @throws Exception
      */
-    public static function timeEnd($label = 'default', $description = '') {
+    public static function endTime($label = 'default', $description = '') {
         $label = self::sanitizeLabel($label);
-        self::ensureTimerDoesExist($label);
+
+        try
+        {
+            self::ensureTimerDoesExist($label);
+        } catch (Exception$exception) {
+            self::log("{$exception->getMessage()} (code {$exception->getCode()})");
+            return;
+        }
 
         $now = microtime(true);
         $timeLog = self::format($now - self::$timeTrackers[$label]['startTime']);
@@ -156,10 +178,20 @@ class Chronos
         self::log($message);
 
         if (self::$timeTrackers[$label]['verbose']) {
-            self::log("Terminated a new timer with the label '{$label}'");
+            self::log("Terminated the timer with the label '{$label}'");
         }
 
         unset(self::$timeTrackers[$label]);
+    }
+
+    /**
+     * Alias for static::endTime()
+     *
+     * @param string $label
+     * @param string $description
+     */
+    public static function timeEnd($label = 'default', $description = '') {
+        self::endTime($label, $description);
     }
 
     /**
