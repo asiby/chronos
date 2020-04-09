@@ -15,8 +15,8 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "Chronos\\": "./src",
-            "Chronos\\Tests\\": "./tests"
+            "ASiby\\": "./src",
+            "ASiby\\Chronos\\Tests\\": "./tests"
         }
     }
 }
