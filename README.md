@@ -64,13 +64,13 @@ use ASiby\Chronos;
 Chronos::time();
 ```
 
-Creating a timer called `Time taken buy the database call`. 
+Creating a timer called `Time taken by the database call`. 
 
 ```php
 use ASiby\Chronos;
 // ...
 
-Chronos::time("Time taken buy the database call");
+Chronos::time("Time taken by the database call");
 ```
 
 Creating a timer called `API Request Time` with the verbose mode enabled. 
